@@ -22,6 +22,15 @@ parameters:
   qa_repo_name:
     type: string
     default: "vizro-qa"
+  gunicorn_workers:
+    type: string
+    default: "3"
+  load_file:
+    type: string
+    default: "app_load"
+  run_load_tests:
+    type: boolean
+    default: false
 
 commands:
   approve-job-in-triggering-pipeline:
@@ -220,6 +229,29 @@ jobs:
       - store_artifacts:
           path: /home/circleci/<< pipeline.parameters.qa_repo_name >>/failed_screenshots/
 
+  run_load_tests:
+    docker:
+      - image: cimg/python:3.8.17
+    steps:
+      - checkout
+      - custom_checkout
+      - create_env_and_install_reqs
+      - run:
+          name: Run load tests
+          command: |
+            export PYTHONPATH="/home/circleci/project/vizx-qa:$PYTHONPATH"
+            cd /home/circleci/<< pipeline.parameters.qa_repo_name >>/dashboards/default
+            gunicorn << pipeline.parameters.load_file >>:server -b 0.0.0.0:5001 -w << pipeline.parameters.gunicorn_workers >> --timeout 90 &
+            /home/circleci/<< pipeline.parameters.qa_repo_name >>/dashboards/wait-for-it.sh 127.0.0.1:5001 -t 300
+            cd /home/circleci/<< pipeline.parameters.qa_repo_name >>
+            locust -f locust/locustfile.py --headless --users 10 --spawn-rate 5 -i 100 --csv=example --csv-full-history
+      - run:
+          name:
+            checking results
+          command: |
+            cd /home/circleci/<< pipeline.parameters.qa_repo_name >>
+            python locust/results.py
+
 workflows:
   version: 2
   vizro-core:
@@ -230,3 +262,7 @@ workflows:
           context:
             - circleci-apix
       - run_notebooks
+  vizro-load:
+    when: << pipeline.parameters.run_load_tests >>
+    jobs:
+      - run_load_tests
