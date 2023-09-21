@@ -28,6 +28,9 @@ branch = true
 parallel = true
 source_pkgs = ["vizro", "tests"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.mypy]
 # strict checks : strict = true
 check_untyped_defs = true

@@ -81,6 +81,9 @@ detached = true
 changelog = "scriv create"
 serve = "mkdocs serve"
 
+[metadata]
+allow-direct-references = true
+
 [publish.index]
 disable = true
 
