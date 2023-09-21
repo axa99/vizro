@@ -27,7 +27,7 @@ parameters:
     default: "3"
   load_file:
     type: string
-    default: "app_load"
+    default: "load_dashboard"
   run_load_tests:
     type: boolean
     default: false
@@ -244,13 +244,16 @@ jobs:
             gunicorn << pipeline.parameters.load_file >>:server -b 0.0.0.0:5001 -w << pipeline.parameters.gunicorn_workers >> --timeout 90 &
             /home/circleci/<< pipeline.parameters.qa_repo_name >>/dashboards/wait-for-it.sh 127.0.0.1:5001 -t 300
             cd /home/circleci/<< pipeline.parameters.qa_repo_name >>
-            locust -f locust/locustfile.py --headless --users 10 --spawn-rate 5 -i 100 --csv=example --csv-full-history
+            locust -f locust_load/locustfile.py --headless --users 1 --spawn-rate 1 -i 25 -tag four_graphs --csv=four_graphs --csv-full-history
+            locust -f locust_load/locustfile.py --headless --users 1 --spawn-rate 1 -i 25 -tag filters --csv=filters --csv-full-history
+            locust -f locust_load/locustfile.py --headless --users 1 --spawn-rate 1 -i 25 -tag parameters --csv=parameters --csv-full-history
+            locust -f locust_load/locustfile.py --headless --users 1 --spawn-rate 1 -i 25 -tag interactions --csv=interactions --csv-full-history
       - run:
           name:
             checking results
           command: |
             cd /home/circleci/<< pipeline.parameters.qa_repo_name >>
-            python locust/results.py
+            python -m pytest -v --junitxml=test-results/junit.xml locust_load
 
 workflows:
   version: 2
