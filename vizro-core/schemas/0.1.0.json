@@ -466,7 +466,6 @@
         },
         "value": {
           "title": "Value",
-          "description": "Option that is selected by default.",
           "anyOf": [
             {
               "type": "boolean"
@@ -761,13 +760,14 @@
         },
         "actions": {
           "title": "Actions",
+          "default": [],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Action"
           }
         }
       },
-      "required": ["trigger", "actions"],
+      "required": ["trigger"],
       "additionalProperties": false
     },
     "Page": {

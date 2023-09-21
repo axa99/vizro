@@ -1,10 +1,28 @@
 """Unit tests for vizro.models.Button."""
+import json
+
 import dash_bootstrap_components as dbc
+import plotly
 import pytest
+from dash import html
 
 import vizro.models as vm
 from vizro.actions import export_data
-from vizro.models._action._actions_chain import ActionsChain
+
+
+@pytest.fixture
+def expected_button():
+    return html.Div(
+        [
+            dbc.Button(
+                id="button_id",
+                children="Click me!",
+                className="button_primary",
+            ),
+        ],
+        className="button_container",
+        id="button_id_outer",
+    )
 
 
 class TestButtonInstantiation:
@@ -28,21 +46,16 @@ class TestButtonInstantiation:
         assert button.text == str(text)
         assert button.actions == []
 
-    def test_create_button_with_one_valid_action(self):
+    def test_set_action_via_validator(self):
         button = vm.Button(actions=[vm.Action(function=export_data())])
-        button_actions_chain = button.actions[0]
-        assert hasattr(button, "id")
-        assert button.type == "button"
-        assert button.text == "Click me!"
-        assert len(button.actions) == 1
-        assert isinstance(button_actions_chain, ActionsChain)
-        assert button_actions_chain.trigger.component_property == "n_clicks"
+        actions_chain = button.actions[0]
+        assert actions_chain.trigger.component_property == "n_clicks"
 
 
 class TestBuildMethod:
-    def test_button_build(self):
-        button = vm.Button(id="button_id")
-        component = button.build()
+    def test_button_build(self, expected_button):
+        button = vm.Button(id="button_id", text="Click me!").build()
+        result = json.loads(json.dumps(button, cls=plotly.utils.PlotlyJSONEncoder))
+        expected = json.loads(json.dumps(expected_button, cls=plotly.utils.PlotlyJSONEncoder))
 
-        assert isinstance(component["button_id"], dbc.Button)
-        assert hasattr(component["button_id"], "id")
+        assert result == expected

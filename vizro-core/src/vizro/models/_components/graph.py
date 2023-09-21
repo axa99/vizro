@@ -40,8 +40,8 @@ class Graph(VizroBaseModel):
     figure: CapturedCallable = Field(..., import_path=px)
     actions: List[Action] = []
 
-    # validator
-    set_actions = _action_validator_factory("clickData")  # type: ignore[pydantic-field]
+    # Re-used validators
+    _set_actions = _action_validator_factory("clickData")
 
     @validator("figure")
     def process_figure_data_frame(cls, figure, values):
@@ -98,7 +98,7 @@ class Graph(VizroBaseModel):
                 # loaded until the graph is first shown on the screen. At the moment, we eagerly run page.build() for
                 # all pages in Dashboard.build in order to register all the callbacks in advance. In future this should
                 # no longer be the case so that we achieve true lazy loading.
-                figure=create_empty_fig("NO DATA"),
+                figure=create_empty_fig(""),
                 config={
                     "autosizable": True,
                     "frameMargins": 0,

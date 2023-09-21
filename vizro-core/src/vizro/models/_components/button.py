@@ -22,18 +22,19 @@ class Button(VizroBaseModel):
     text: str = Field("Click me!", description="Text to be displayed on button.")
     actions: List[Action] = []
 
-    # validator
-    set_actions = _action_validator_factory("n_clicks")  # type: ignore[pydantic-field]
+    # Re-used validators
+    _set_actions = _action_validator_factory("n_clicks")
 
     @_log_call
     def build(self):
         return html.Div(
             [
                 dbc.Button(
-                    children=self.text,
                     id=self.id,
+                    children=self.text,
                     className="button_primary",
                 ),
             ],
             className="button_container",
+            id=f"{self.id}_outer",
         )

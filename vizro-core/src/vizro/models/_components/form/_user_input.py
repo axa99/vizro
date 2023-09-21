@@ -29,23 +29,23 @@ class UserInput(VizroBaseModel):
     )
     actions: List[Action] = []
 
-    # validator
-    set_actions = _action_validator_factory("value")  # type: ignore[pydantic-field]
+    # Re-used validators
+    _set_actions = _action_validator_factory("value")
 
     @_log_call
     def build(self):
         return html.Div(
             [
-                html.P(self.title, id="user_input_title") if self.title else None,
+                html.P(self.title) if self.title else None,
                 dbc.Input(
                     id=self.id,
                     placeholder=self.placeholder,
                     type=self.input_type,
-                    className="user_input",
                     persistence=True,
                     debounce=True,
+                    className="user_input",
                 ),
-                html.Div(id="placeholder-for-testing"),
             ],
             className="selector_container",
+            id=f"{self.id}_outer",
         )
