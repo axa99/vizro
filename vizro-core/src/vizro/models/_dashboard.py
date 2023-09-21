@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, List, Literal, Optional
 import dash
 import dash_bootstrap_components as dbc
 import plotly.io as pio
+import vizroui
 from dash import Input, Output, callback, html
 from pydantic import Field, validator
 
@@ -93,9 +94,14 @@ class Dashboard(VizroBaseModel):
         return dbc.Container(
             id="dashboard_container",
             children=[
-                html.Div(id=f"vizro_version_{vizro.__version__}"),
-                *ActionLoop._create_app_callbacks(),
-                dash.page_container,
+                vizroui.DesignTokensProvider(
+                    [
+                        vizroui.GlobalStyles(),
+                        html.Div(id=f"vizro_version_{vizro.__version__}"),
+                        *ActionLoop._create_app_callbacks(),
+                        dash.page_container,
+                    ]
+                )
             ],
             className=self.theme,
             fluid=True,

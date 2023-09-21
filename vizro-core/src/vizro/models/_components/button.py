@@ -1,6 +1,6 @@
 from typing import List, Literal
 
-import dash_bootstrap_components as dbc
+import vizroui
 from dash import html
 from pydantic import Field
 
@@ -29,10 +29,9 @@ class Button(VizroBaseModel):
     def build(self):
         return html.Div(
             [
-                dbc.Button(
+                vizroui.Button(
                     id=self.id,
-                    children=self.text,
-                    className="button_primary",
+                    label=self.text,
                 ),
             ],
             className="button_container",
