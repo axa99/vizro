@@ -32,6 +32,7 @@ class Button(VizroBaseModel):
                 vizroui.Button(
                     id=self.id,
                     label=self.text,
+                    n_clicks=0
                 ),
             ],
             className="button_container",
